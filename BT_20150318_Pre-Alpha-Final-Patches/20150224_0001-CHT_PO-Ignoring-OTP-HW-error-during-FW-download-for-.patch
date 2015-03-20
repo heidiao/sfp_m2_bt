@@ -1,0 +1,54 @@
+From 18efefa462555ad4a3cfb007201778eeee5ae8c5 Mon Sep 17 00:00:00 2001
+From: Jaya Praveen Gangavarapu <jaya.praveenx.gangavarapu@intel.com>
+Date: Wed, 5 Nov 2014 16:21:45 +0530
+Subject: [PATCH] [CHT_PO] Ignoring OTP HW error during FW download for LnP
+
+[PORT FROM IMIN_LEGACY] Not for merge, only for the CHT PO
+
+While downloading FW in LnP, OTP HW error event comes from Controller which
+fails BT enable. This patch is a workaround to ignore this error and proceed
+with BT enable. It will be reverted once this issue is fixed in FW.
+Issue: MWG100221255
+
+Tracked-On: https://jira01.devtools.intel.com/browse/IMINAN-14669
+Change-Id: Iec088819c70d2321b06b67b4a1b2339d5f6fe6ab
+Signed-off-by: Praveen Reddy <praveen.reddy@intel.com>
+---
+ stack/btu/btu_hcif.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
+ mode change 100644 => 100755 stack/btu/btu_hcif.c
+
+diff --git a/stack/btu/btu_hcif.c b/stack/btu/btu_hcif.c
+old mode 100644
+new mode 100755
+index 9ec8dd3..ff191c8
+--- a/stack/btu/btu_hcif.c
++++ b/stack/btu/btu_hcif.c
+@@ -57,6 +57,11 @@ extern void btm_ble_test_command_complete(UINT8 *p);
+ #endif
+ // btla-specific --
+ 
++//WorkAround for HW Error
++#ifdef INTEL_CONTROLLER
++#define HW_ERR_EVENT_OTP_READ_FAILURE    14
++#endif
++
+ //Counter to track number of HCI command timeout
+ static int num_hci_cmds_timed_out;
+ 
+@@ -1699,6 +1704,12 @@ static void btu_hcif_hardware_error_evt (UINT8 *p)
+ {
+     HCI_TRACE_ERROR("Ctlr H/w error event - code:0x%x", *p);
+ 
++#ifdef INTEL_CONTROLLER
++    /* Ignore HW_ERR_EVENT_OTP_READ_FAILURE*/
++    if(*p == HW_ERR_EVENT_OTP_READ_FAILURE)
++       return;
++#endif
++
+     /* If anyone wants device status notifications, give him one. */
+     btm_report_device_status (BTM_DEV_STATUS_DOWN);
+ 
+-- 
+1.7.9.5
+

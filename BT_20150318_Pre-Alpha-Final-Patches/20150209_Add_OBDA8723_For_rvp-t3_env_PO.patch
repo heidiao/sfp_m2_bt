@@ -1,0 +1,12 @@
+diff --git a/drivers/misc/intel_ld/lnp_ldisc.c b/drivers/misc/intel_ld/lnp_ldisc.c
+index 9703761..abfa9f0 100644
+--- a/drivers/misc/intel_ld/lnp_ldisc.c
++++ b/drivers/misc/intel_ld/lnp_ldisc.c
+@@ -54,6 +54,7 @@ static struct intel_bt_gpio_desc acpi_default_bluetooth = {
+ static struct acpi_device_id intel_id_table[] = {
+ 	/* ACPI IDs here */
+ 	{ "BCM2E1A", (kernel_ulong_t)&acpi_default_bluetooth },
++	{ "OBDA8723", (kernel_ulong_t)&acpi_default_bluetooth },
+ 	{ },
+ };
+ 

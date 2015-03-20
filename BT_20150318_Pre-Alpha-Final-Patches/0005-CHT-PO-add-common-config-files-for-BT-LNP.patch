@@ -1,0 +1,115 @@
+From 1dd52cb698a3f894ec0e8a008b65c7d99dd70c07 Mon Sep 17 00:00:00 2001
+From: jbelloua <jean-marie.bellouard@intel.com>
+Date: Thu, 18 Dec 2014 14:31:23 +0100
+Subject: [PATCH] [CHT PO] add common config files for BT LNP
+
+not for merge (PO only)
+
+Tracked-On: https://jira01.devtools.intel.com/browse/IMINAN-14669
+Change-Id: I28fc8a18bfdf591bee318a9c2ecafa3233e9eab9
+Signed-off-by: jbelloua <jean-marie.bellouard@intel.com>
+---
+ bluetooth/lnp/Android.mk        |   14 ++++++++++++
+ bluetooth/lnp/bdroid_buildcfg.h |   47 +++++++++++++++++++++++++++++++++++++++
+ bluetooth/lnp/bt_vendor.conf    |   14 ++++++++++++
+ 3 files changed, 75 insertions(+)
+ create mode 100644 bluetooth/lnp/Android.mk
+ create mode 100644 bluetooth/lnp/bdroid_buildcfg.h
+ create mode 100644 bluetooth/lnp/bt_vendor.conf
+
+diff --git a/bluetooth/lnp/Android.mk b/bluetooth/lnp/Android.mk
+new file mode 100644
+index 0000000..541c646
+--- /dev/null
++++ b/bluetooth/lnp/Android.mk
+@@ -0,0 +1,14 @@
++LOCAL_PATH := $(call my-dir)
++
++include $(CLEAR_VARS)
++
++LOCAL_MODULE := lnp_default_conf
++LOCAL_SRC_FILES := bt_vendor.conf
++LOCAL_MODULE_TAGS := optional
++LOCAL_MODULE_CLASS := ETC
++LOCAL_MODULE_PATH := $(TARGET_OUT)/etc/bluetooth
++LOCAL_MODULE_STEM := $(LOCAL_SRC_FILES)
++
++include $(BUILD_PREBUILT)
++
++
+diff --git a/bluetooth/lnp/bdroid_buildcfg.h b/bluetooth/lnp/bdroid_buildcfg.h
+new file mode 100644
+index 0000000..ec779af
+--- /dev/null
++++ b/bluetooth/lnp/bdroid_buildcfg.h
+@@ -0,0 +1,47 @@
++/*
++ * Copyright (C) 2012 The Android Open Source Project
++ *
++ * Licensed under the Apache License, Version 2.0 (the "License");
++ * you may not use this file except in compliance with the License.
++ * You may obtain a copy of the License at
++ *
++ *      http://www.apache.org/licenses/LICENSE-2.0
++ *
++ * Unless required by applicable law or agreed to in writing, software
++ * distributed under the License is distributed on an "AS IS" BASIS,
++ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
++ * See the License for the specific language governing permissions and
++ * limitations under the License.
++ */
++
++#ifndef _BDROID_BUILDCFG_H
++#define _BDROID_BUILDCFG_H
++
++#define BTM_DEF_LOCAL_NAME "gmin-bluetooth-lnp"
++                            // Bluetooth Low Power Mode is supported on BT4.0
++#define HCILP_INCLUDED                 FALSE
++
++/* Default class of device
++* {SERVICE_CLASS, MAJOR_CLASS, MINOR_CLASS}
++*
++* SERVICE_CLASS:0x1A (Bit17 -Networking,Bit19 - Capturing,Bit20 -Object Transfer)
++* MAJOR_CLASS:0x01 - COMPUTER
++* MINOR_CLASS:0x1C - TABLET
++*/
++
++#define BTA_DM_COD {0x1A, 0x01, 0x1C}
++
++#define PRELOAD_MAX_RETRY_ATTEMPTS 1
++
++#define PRELOAD_START_TIMEOUT_MS 700000
++
++/* Must be true for LnP */
++#ifndef INTEL_LNP_UART
++#define INTEL_LNP_UART TRUE
++#endif
++
++#ifndef INTEL_CONTROLLER
++#define INTEL_CONTROLLER TRUE
++#endif
++
++#endif
+diff --git a/bluetooth/lnp/bt_vendor.conf b/bluetooth/lnp/bt_vendor.conf
+new file mode 100644
+index 0000000..5ad0729
+--- /dev/null
++++ b/bluetooth/lnp/bt_vendor.conf
+@@ -0,0 +1,14 @@
++# UART device port where Bluetooth controller is attached
++UartPort = /dev/ttyS1
++
++# Firmware patch file location
++FwPatchFilePath = /etc/firmware/bt/
++
++# BDDATA file locaiton
++BddataLocation = /etc/bluetooth/bddata
++
++# Operational UART baudrate
++OperationalBaudrate = 3000000
++
++#true: LPM is enabled. Otherwise false
++LpmEnabled = true
+-- 
+1.7.9.5
+

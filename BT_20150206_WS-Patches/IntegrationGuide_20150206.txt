@@ -1,0 +1,28 @@
+
+Step1: 
+[Patch] 0001_modify-LNP-support-base-on-mixins_BySteven.patch
+Please apply patch into "device/intel/cherrytrail/cht_rvp"
+PS: if you use build cmd "lunch cht_ffd" , you need to patch into correct product name like "device/intel/cherrytrail/cht_ffd"
+
+PS: If conflict, please manually merge. (multi-driver access those common files.)
+Step2: 
+[Patch] 0002-CHT_PO-prevent-compilation-of-default-BT-stack-for-i.patch
+Apply patch into "external/bluetooth/bluedroid"
+
+Step3: 
+[Patch] 0003-CHT-PO-add-ldisc-driver-support-for-LnP.patch
+Apply patch into "kernel/gmin"
+
+Step4: 
+[Patch] 0004-serial-8250_dw-disable-rts_n-override-when-AFE-enabl.patch
+Apply patch into "kernel/gmin"
+
+Step5: 
+[Patch] 0005-CHT-PO-add-common-config-files-for-BT-LNP.patch
+Apply patch into "device/intel/common"
+
+PS: If conflict, please manually merge. (multi-driver access those common files.)
+Step6: 
+[Patch] 0006-CHT-PO-TEST-add-lnp-ldisc-driver-to-kernel.patch
+Apply patch into "kernel/gmin"
+

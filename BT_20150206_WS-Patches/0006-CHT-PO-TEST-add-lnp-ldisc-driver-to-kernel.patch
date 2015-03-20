@@ -1,0 +1,56 @@
+From 0a818096f7f76a2eb93e6e89ab85b2b457b7aad9 Mon Sep 17 00:00:00 2001
+From: jbelloua <jean-marie.bellouard@intel.com>
+Date: Tue, 9 Dec 2014 10:57:47 +0100
+Subject: [PATCH] [CHT PO] [TEST] add lnp ldisc driver to kernel
+
+Tracked-On: https://jira01.devtools.intel.com/browse/IMINAN-14669
+Change-Id: If0734ae92525896ad0a21ac3960589234fd0e3d9
+Signed-off-by: jbelloua <jean-marie.bellouard@intel.com>
+---
+ uefi/gmin/i386.config   |    2 ++
+ uefi/gmin/x86_64.config |    2 ++
+ 2 files changed, 4 insertions(+)
+
+diff --git a/uefi/gmin/i386.config b/uefi/gmin/i386.config
+index cc6903c..cffc8f6 100644
+--- a/uefi/gmin/i386.config
++++ b/uefi/gmin/i386.config
+@@ -2069,6 +2069,7 @@ CONFIG_SERIAL_8250_DW=m
+ # CONFIG_SERIAL_MAX3100 is not set
+ # CONFIG_SERIAL_MAX310X is not set
+ # CONFIG_SERIAL_MFD_HSU is not set
++CONFIG_INTEL_ST_LD=m
+ CONFIG_SERIAL_CORE=y
+ CONFIG_SERIAL_CORE_CONSOLE=y
+ # CONFIG_SERIAL_JSM is not set
+@@ -2262,6 +2263,7 @@ CONFIG_PINCTRL_BAYTRAIL=y
+ CONFIG_PINCTRL_CHERRYVIEW=y
+ CONFIG_ARCH_WANT_OPTIONAL_GPIOLIB=y
+ CONFIG_GPIOLIB=y
++CONFIG_GPIODEBUG=y
+ CONFIG_GPIO_DEVRES=y
+ CONFIG_GPIO_ACPI=y
+ # CONFIG_DEBUG_GPIO is not set
+diff --git a/uefi/gmin/x86_64.config b/uefi/gmin/x86_64.config
+index babe142..d51af78 100644
+--- a/uefi/gmin/x86_64.config
++++ b/uefi/gmin/x86_64.config
+@@ -2031,6 +2031,7 @@ CONFIG_SERIAL_8250_DW=m
+ # CONFIG_SERIAL_MAX3100 is not set
+ # CONFIG_SERIAL_MAX310X is not set
+ # CONFIG_SERIAL_MFD_HSU is not set
++CONFIG_INTEL_ST_LD=m
+ CONFIG_SERIAL_CORE=y
+ CONFIG_SERIAL_CORE_CONSOLE=y
+ # CONFIG_SERIAL_JSM is not set
+@@ -2219,6 +2220,7 @@ CONFIG_PINCTRL_BAYTRAIL=y
+ CONFIG_PINCTRL_CHERRYVIEW=y
+ CONFIG_ARCH_WANT_OPTIONAL_GPIOLIB=y
+ CONFIG_GPIOLIB=y
++CONFIG_GPIODEBUG=y
+ CONFIG_GPIO_DEVRES=y
+ CONFIG_GPIO_ACPI=y
+ # CONFIG_DEBUG_GPIO is not set
+-- 
+1.7.9.5
+

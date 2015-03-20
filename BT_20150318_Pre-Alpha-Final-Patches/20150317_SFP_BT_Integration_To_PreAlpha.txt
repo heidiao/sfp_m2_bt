@@ -1,0 +1,173 @@
+==============================================================================
+Step 1: "LnP_BT_Patchs_On_cht-rvp_20150206_R2.zip"
+
+0002-CHT_PO-prevent-compilation-of-default-BT-stack-for-i.patch
+=> Apply patch into "external/bluetooth/bluedroid"
+
+0003-CHT-PO-add-ldisc-driver-support-for-LnP.patch
+=> (already in ww10b codebase of "kernel/gmin", not need to merge again)
+
+PS: Need to merge this chg?
+--- a/net/rfkill/rfkill-gpio.c
++++ b/net/rfkill/rfkill-gpio.c
+@@ -330,7 +330,7 @@ static struct rfkill_gpio_desc acpi_gps_wake = {
+ };
+ 
+ static const struct acpi_device_id rfkill_acpi_match[] = {
+-	{ "BCM2E1A", (kernel_ulong_t)&acpi_default_bluetooth },
++/*	{ "BCM2E1A", (kernel_ulong_t)&acpi_default_bluetooth },*/
+ 	{ "BCM2E39", (kernel_ulong_t)&acpi_default_bluetooth },
+ 	{ "BCM2E3D", (kernel_ulong_t)&acpi_default_bluetooth },
+ 	{ "BCM2E3A", (kernel_ulong_t)&acpi_bluetooth_wake },
+	
+0004-serial-8250_dw-disable-rts_n-override-when-AFE-enabl.patch
+=> (already in ww10b codebase of "kernel/gmin", not need to merge again)
+
+0005-CHT-PO-add-common-config-files-for-BT-LNP.patch
+=> Apply patch into "device/intel/common"
+
+0006-CHT-PO-TEST-add-lnp-ldisc-driver-to-kernel.patch
+=> Need manually merge to modify config files in "kernel/gmin" 
+==============================================================================
+Step 2 :
+[add new files] Bluedroid_Patches.tar.bz2
+
+tar -zxvf Bluedroid_Patches.tar.bz2
+Please add folder into "/hardware/intel/bluedroid/*" and "/hardware/intel/libbt-vendor-intel/*"
+
+==============================================================================
+
+Step 3 :
+[BT fw] Push_To_FS_For_LnP_BT.zip
+After flash build images to device, please adb push "Push_To_FS_For_LnP_BT.zip" files into "\etc\bluetooth\*" and "\etc\bluetooth\firmware\bt\*"
+
+
+==============================================================================
+Step 4-1 :
+[Patch] 20150209_Add_OBDA8723_For_rvp-t3_env_PO.patch
+Apply patch into kernel/gmin/
+
+Step 4-2 :  Please remove this code.
+
+Kernel/gmin/net/rfkill/rfkill-gpio.c
+
+static const struct acpi_device_id rfkill_acpi_match[] = {
+/*     { "BCM2E1A", (kernel_ulong_t)&acpi_default_bluetooth },*/
+        { "BCM2E39", (kernel_ulong_t)&acpi_default_bluetooth },
+        { "BCM2E3D", (kernel_ulong_t)&acpi_default_bluetooth },
+        { "BCM2E3A", (kernel_ulong_t)&acpi_bluetooth_wake },
+-       { "OBDA8723", (kernel_ulong_t)&acpi_bluetooth_wake },
++      /*{ "OBDA8723", (kernel_ulong_t)&acpi_bluetooth_wake }, */
+        { "BCM4752", (kernel_ulong_t)&acpi_default_gps },
+        { "LNV4752", (kernel_ulong_t)&acpi_default_gps },
+        { "BCM4752E", (kernel_ulong_t)&acpi_default_gps },
+        { "BCM47521", (kernel_ulong_t)&acpi_gps_wake },
+        { },
+};
+
+==============================================================================
+
+Step 5 : 0001-LnP-BT-porting-for-product-cht_cr_rvp-20150210.patch
+
+(config should go to ¡§cht_cr_rvp¡¨)
+
+Here is the patches , that I integration again.
+
+0001-LnP-BT-porting-for-product-cht_cr_rvp-20150210.patch 
+=> this patch changes init.rc / BoardConfig/ device.mk ..etc files on ¡§device/intel/cherrytrail/cht_cr_rvp/*¡¨ , 
+you may merge this patch error due to my codebase base is not the same as your, 
+
+So you can check the original / modify files in ¡§ori_mod.zip¡¨ (This is modify based on the files you copy to me.)
+
+==============================================================================
+Step 6 : 20150224_0001-CHT_PO-Ignoring-OTP-HW-error-during-FW-download-for-.patch
+
+=>  apply attach patches into ¡§hardware/intel/bluedroid¡¨, this is know SFP BT fw issue at pre-alpha level. Target to fix at SFP alpha release FW.
+
+
+==============================================================================
+Step 7 : 
+Please review and make sure UART tx/rx/rts/cts GPIO config.
+Make sure config to mode 1.
+
+==============================================================================
+Step 8 :
+Please review the BT_EN pin / BT_host_wake pin is config correctly.
+In pre-alpha porting, we reference the DSDT table "OBDA8723" devices.
+
+==============================================================================
+
+Step 9:
+WA to grant timeout for knwon issue.
+
+Packages/apps/bluetooth/src/com/android/bluetooth/btservice/AdapterState.java
+
+    //TODO: tune me
+    private static final int ENABLE_TIMEOUT_DELAY = 508000;
+
+
+---------------------------------------------------------------------------------
+Step 10 :
+
+ISSUE : Folder permission issue that bt stack can¡¦t get bt FW.
+ 
+Log Symptom:
+////01-01 00:19:51.468 D/bt_hwcfg( 3301): Lnp B0 Controller
+////01-01 00:19:51.468 D/bt_hwcfg( 3301): sfi patch file name: 370b10060002220e00.sfi
+////01-01 00:19:51.468 D/bt_hwcfg( 3301): Target name = [370b10060002220e00.sfi]
+////01-01 00:19:51.468 E/bt_hwcfg( 3301): Could not open /etc/firmware/bt/
+„Ã	(steven) Fail to open dir ¡§/etc/firmware/bt/¡¨  is the root cause
+ 
+Suggest Fix:
+ 
+Step1:
+Please dump ¡§/etc/firmware/bt/¡¨ permission as below cmds to me for a backup.  
+¡§#ls ¡Vl /etc/¡¨ to check ¡§firmware¡¨ folder permission.
+¡§#ls ¡Vl /etc/firmware¡¨ to check ¡§bt¡¨ folder permission.
+ 
+Step2:
+Please grant folder permission to ¡§/etc/firmware/¡¨ and ¡§/etc/firmware/bt/¡¨  by cmds
+¡§chmod 0666 /etc/firmware/bt¡¨
+You may also need to ¡§chown system system /etc/firmware/bt¡¨  , please check the folder around /etc/ to make sure permission is align.
+ 
+Step3:
+Please make sure BT FW ¡§370b10060002220e00.sfi¡¨ in /etc/firmware/bt/  correctly, then reboot and try again.
+ 
+
+
+==============================================================================
+
+---------------------------------------------------------------------------------
+DEBUG logs SOP :
+---------------------------------------------------------------------------------
+A. Open BT snoop logs
+
+Etc/Bluetooth/Bt_stack.conf
+# Enable BtSnoop logging function
+# valid value : true, false
+BtSnoopLogOutput=true
+ 
+# BtSnoop log output file
+BtSnoopFileName=/data/logs/btsnoop_hci.log
+ 
+# Preserve existing BtSnoop log before overwriting
+BtSnoopSaveLog= true
+
+---------------------------------------------------------------------------------
+B. Open RX dynamic logs
+
+
+adb shell "echo 'file lnp_ldisc.c +p' > /d/dynamic_debug/control"
+or
+adb shell "echo 'file lnp_ldisc.c +p' > /sys/kernel/debug/dynamic_debug/control"
+
+---------------------------------------------------------------------------------
+C. Open TX dynamic logs
+
+lnp_ldisc.c
+-       /*print_hex_dump(KERN_DEBUG, "<BT out<", DUMP_PREFIX_NONE, 16, 1, data,
+-                       count, 0);*/
++      print_hex_dump(KERN_DEBUG, "<BT out<", DUMP_PREFIX_NONE, 16, 1, data,
++                      count, 0);
+
+---------------------------------------------------------------------------------

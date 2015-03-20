@@ -1,0 +1,59 @@
+From e39cf82ade235677e2a2c5d1b45718e8250953dd Mon Sep 17 00:00:00 2001
+From: jbelloua <jean-marie.bellouard@intel.com>
+Date: Mon, 22 Dec 2014 14:22:54 +0100
+Subject: [PATCH] [CHT_PO] prevent compilation of default BT stack for intel
+ connectivity
+
+prevent compilation of default BT stack for intel connectivity
+
+Category: aosp improvement
+Domain: CWS.BT-Common
+Origin: internal
+Upstream-Candidate: yes
+Tracked-On: https://jira01.devtools.intel.com/browse/IMINAN-14669
+Change-Id: I5ad9c2410fdb1710bf9ad7dbc749b02db67eb8c5
+Signed-off-by: jbelloua <jean-marie.bellouard@intel.com>
+---
+ Android.mk               |    4 ++++
+ audio_a2dp_hw/Android.mk |    4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/Android.mk b/Android.mk
+index 1ddfb47..10f9024 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -1,5 +1,7 @@
+ LOCAL_PATH := $(call my-dir)
+ 
++ifneq ($(BOARD_HAVE_BLUETOOTH_INTEL), true)
++
+ bdroid_CFLAGS := -Wno-unused-parameter
+ 
+ # Setup bdroid local make variables for handling configuration
+@@ -22,3 +24,5 @@ include $(call all-subdir-makefiles)
+ # Cleanup our locals
+ bdroid_C_INCLUDES :=
+ bdroid_CFLAGS :=
++
++endif # BOARD_HAVE_BLUETOOTH_INTEL
+diff --git a/audio_a2dp_hw/Android.mk b/audio_a2dp_hw/Android.mk
+index 6fb83cb..a8dcf04 100644
+--- a/audio_a2dp_hw/Android.mk
++++ b/audio_a2dp_hw/Android.mk
+@@ -1,5 +1,7 @@
+ LOCAL_PATH := $(call my-dir)
+ 
++ifneq ($(BOARD_HAVE_BLUETOOTH_INTEL), true)
++
+ include $(CLEAR_VARS)
+ 
+ LOCAL_SRC_FILES := \
+@@ -19,3 +21,5 @@ LOCAL_SHARED_LIBRARIES := libcutils liblog
+ LOCAL_MODULE_TAGS := optional
+ 
+ include $(BUILD_SHARED_LIBRARY)
++
++endif # BOARD_HAVE_BLUETOOTH_INTEL
+-- 
+1.7.9.5
+

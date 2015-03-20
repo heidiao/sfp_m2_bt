@@ -1,0 +1,140 @@
+From e03ef92584abfb7e89b905299dc742213067916d Mon Sep 17 00:00:00 2001
+From: Heidi Ao/WHQ/Wistron <Heidi_Ao@wistron.com>
+Date: Tue, 24 Feb 2015 18:51:37 +0800
+Subject: [PATCH] BT - [PATCH] LnP BT porting for product cht_cr_rvp 20150209
+
+Change-Id: I402bb8218e6d07908a60a18c2c8ad721091f82a7
+
+Conflicts:
+
+	cht_cr_rvp/BoardConfig.mk
+	cht_cr_rvp/device.mk
+	cht_cr_rvp/init.rc
+	cht_cr_rvp/mixins.spec
+	cht_cr_rvp/ueventd.rc
+---
+ cht_cr_rvp/BoardConfig.mk |    5 +++--
+ cht_cr_rvp/device.mk      |    5 ++++-
+ cht_cr_rvp/init.rc        |   18 +++++++++++++++++-
+ cht_cr_rvp/mixins.spec    |    2 +-
+ cht_cr_rvp/ueventd.rc     |    2 +-
+ 5 files changed, 26 insertions(+), 6 deletions(-)
+
+diff --git a/cht_cr_rvp/BoardConfig.mk b/cht_cr_rvp/BoardConfig.mk
+index 3c595c6..a192dc5 100755
+--- a/cht_cr_rvp/BoardConfig.mk
++++ b/cht_cr_rvp/BoardConfig.mk
+@@ -246,7 +246,7 @@ USE_INTEL_JPEG := false
+ USE_CAMERA_STUB := false
+ 
+ ##############################################################
+-# Source: device/intel/mixins/groups/bluetooth/rtl8723bs/BoardConfig.mk
++# Source: device/intel/mixins/groups/bluetooth/lnp/BoardConfig.mk
+ ##############################################################
+ BOARD_HAVE_BLUETOOTH := true
+ USE_AOSP_BLUEDROID := true
+@@ -254,7 +254,8 @@ BOARD_HAVE_BLUETOOTH_RTK := true
+ RTK_BLUETOOTH_INTERFACE := uart
+ BLUETOOTH_BLUEDROID_RTK := true
+ BLUETOOTH_HCI_USE_RTK_H5 := true
+-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/intel/common/bluetooth/default/
++BOARD_HAVE_BLUETOOTH_INTEL := true
++BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/intel/common/bluetooth/lnp/
+ DEVICE_PACKAGE_OVERLAYS += device/intel/common/bluetooth/overlay-bt-pan
+ 
+ ##############################################################
+diff --git a/cht_cr_rvp/device.mk b/cht_cr_rvp/device.mk
+index 9d30ff4..440a121 100644
+--- a/cht_cr_rvp/device.mk
++++ b/cht_cr_rvp/device.mk
+@@ -224,7 +224,7 @@ PRODUCT_PACKAGES_DEBUG += \
+ ##############################################################
+ PRODUCT_COPY_FILES += device/intel/common/rfkill/rfkill-init.sh:system/bin/rfkill-init.sh
+ ##############################################################
+-# Source: device/intel/mixins/groups/bluetooth/rtl8723bs/product.mk
++# Source: device/intel/mixins/groups/bluetooth/lnp/product.mk
+ ##############################################################
+ PRODUCT_PACKAGES += \
+     bd_prov \
+@@ -234,6 +234,9 @@ PRODUCT_PACKAGES += \
+     bt_vendor.default.conf \
+     rtl8723b_config \
+     rtl8723b_fw \
++    bdt \
++    lnp_default_conf \
++    bt_lightning_peak \
+ 
+ PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
+ 		frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml
+diff --git a/cht_cr_rvp/init.rc b/cht_cr_rvp/init.rc
+index b113a77..e13af95 100644
+--- a/cht_cr_rvp/init.rc
++++ b/cht_cr_rvp/init.rc
+@@ -209,7 +209,7 @@ service rfkill-init /system/bin/sh /system/bin/rfkill-init.sh gps bluetooth
+     group system
+     oneshot
+ ##############################################################
+-# Source: device/intel/mixins/groups/bluetooth/rtl8723bs/init.rc
++# Source: device/intel/mixins/groups/bluetooth/lnp/init.rc
+ ##############################################################
+ ########################################################
+ #  BLUETOOTH CONFIGURATION - REALTEK SPECIFIC
+@@ -222,6 +222,20 @@ on boot
+     insmod /system/lib/modules/8250_dw.ko
+     insmod /system/lib/modules/6lowpan_iphc.ko
+     start rfkill_bt
++    insmod /system/lib/modules/6lowpan_iphc.ko
++    insmod /system/lib/modules/bluetooth.ko
++    insmod /system/lib/modules/hci_uart.ko
++    insmod  /system/lib/modules/lnp_ldisc.ko
++    chmod 0644 /sys/kernel/debug/bluetooth/l2cap_le_max_credits
++    chmod 0644 /sys/kernel/debug/bluetooth/l2cap_le_default_mps
++    #TMP: disable power control
++    write /sys/devices/pci0000:00/8086228A:00/power/control on
++
++
++on post-fs-data
++    mkdir /data/misc/dhcp 0770 dhcp system
++    mkdir /config/bluetooth
++    chmod 755 /config/bluetooth
+ 
+ on post-fs
+     mkdir /config/bt
+@@ -246,6 +260,8 @@ service dhcpcd_bt-pan /system/bin/logwrapper /system/bin/dhcpcd -ABKL
+ 
+ service iprenew_bt-pan /system/bin/logwrapper /system/bin/dhcpcd -n
+     group bluetooth system dhcp
++
++service dhcpcd_bt-pan /system/bin/dhcpcd -ABKL
+     disabled
+     oneshot
+ 
+diff --git a/cht_cr_rvp/mixins.spec b/cht_cr_rvp/mixins.spec
+index f915709..535e3b5 100644
+--- a/cht_cr_rvp/mixins.spec
++++ b/cht_cr_rvp/mixins.spec
+@@ -18,7 +18,7 @@ storage: sdcard-mmcblk1-4xUSB-sda-emulated
+ ethernet: dhcp
+ camera: isp3
+ rfkill: true(force_disable=gps bluetooth)
+-bluetooth: rtl8723bs
++bluetooth: lnp 
+ nfc: pn547
+ wlan: rtl8723bs
+ widi: gen
+diff --git a/cht_cr_rvp/ueventd.rc b/cht_cr_rvp/ueventd.rc
+index e668999..6b41a5b 100644
+--- a/cht_cr_rvp/ueventd.rc
++++ b/cht_cr_rvp/ueventd.rc
+@@ -21,7 +21,7 @@
+ # Rfkill
+ /dev/rfkill                    0660   bluetooth        system
+ ##############################################################
+-# Source: device/intel/mixins/groups/bluetooth/rtl8723bs/ueventd.rc
++# Source: device/intel/mixins/groups/bluetooth/lnp/ueventd.rc
+ ##############################################################
+ #Bluedroid uhid support
+ /dev/uhid                                    0660 bluetooth bluetooth
+-- 
+1.7.9.5
+
